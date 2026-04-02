@@ -1,0 +1,178 @@
+@startuml Class diagram
+
+interface IBullet
+
+interface IMovement
+
+IMovement : MoveTo(position: Vector3)
+IMovement : Move(position: Vector3)
+IMovement : ChangeSpeed(newValue: float)
+IMovement : AddSpeed(addValue : float)
+IMovement : ChangeDirection(newDirection: Vector3)
+
+IMovement <|-- StraightMovement
+IMovement <|-- DiagonalMovement
+
+IBullet *-- IMovement
+
+class TextChunk
+
+TextChunk : string key
+TextChunk : string value
+TextChunk : string? next
+TextChunk : Next() : TextChunk?
+
+class TextManager
+
+TextManager : FilePath : string
+TextManager : Language : string
+TextManager : Retrieve(string key) : TextChunk?
+
+interface IObject
+
+IObject : Disable()
+IObject : Enable()
+IObject : GetFamilyId() : int
+IObject : GetId() : int
+
+enum InteractableType
+
+interface IInteractable
+IInteractable : GetType() : InteractableType
+IInteractable : StartInteraction(interactor : IInteractor)
+
+interface IInteractor
+IInteractor : onEnterInteractable(interactable : IInteractable)
+IInteractor : onLeaveInteractable(interactable: IInteractable)
+
+IObject <|-- IInteractable
+
+IInteractable <|-- ICollectable 
+
+IInteractable -- InteractableType
+
+interface ICollectable
+
+ICollectable : OnPickUp(whoPickedUpd: IObject)
+ICollectable : OnDropOut()
+
+interface IWeapon
+
+IWeapon : FirstAttack()
+IWeapon : SecondAttack()
+
+abstract Weapon
+
+interface IType
+
+interface IFamily
+
+interface IActionInput
+
+IActionInput : Action()
+
+abstract ActionInputManager
+
+class InputBasedManager
+class RandomInputManager
+ICollectable <|-- IWeapon
+IWeapon <|-- Weapon
+ICollectable <|-- Item
+
+Weapon "1" *-- "1..n" IType
+Weapon "1" *-- "1..n" IFamily
+
+
+'========================
+' INTERFACES
+'========================
+
+interface IGameEvent
+
+
+'========================
+' ORDERED EVENT
+'========================
+
+class OrderedEvent {
+    +Priority : int
+    +TriggerTimes : int
+    +Callback : Action<T>
+    
+    +Execute(data : T) : void
+}
+
+OrderedEvent -- IGameEvent
+
+
+'========================
+' EVENT HANDLER
+'========================
+
+
+
+class EventHandler {
+    -_events : Dictionary<Type, List<OrderedEvent>>
+    -SortByPriority(type : Type) : void
+    -Cleanup(type : Type) : void
+    +OwnerId : int
+    +Publish<T>(data : T) : void
+    +Subscribe<T>(event: OrderedEvent) : void
+}
+
+note right of OrderedEvent : OrderedEvent<T> where T : IGameEvent
+note right of EventHandler : where T : IGameEvent
+
+EventHandler "1" *-- "0..n" OrderedEvent
+
+
+'========================
+' EVENT HANDLER PUBLISHER
+'========================
+
+class EventHandlerPublisher {
+
+    -handlers : Dictionary<HandlerType, List<EventHandler>>
+    -generalHandlers : Dictionary<HandlerType, OrderedEvent>
+    +Publish(type : HandlerType, handler : EventHandler) : void
+    +Unpublish(type : HandlerType, handler : EventHandler) : void
+    +Subscribe(type: HandlerType, event: OrderedEvent) : void 
+    +SubscribeToCurrent(type: HandlerType, event: OrderedEvent) : void
+    +Unsubscribe(type: HandlerType, event: OrderedEvent) : void
+    +UnsubscribeToCurrent(type: HandlerType, event: OrderedEvent) : void
+}
+
+EventHandlerPublisher o-- "0..n" OrderedEvent
+EventHandlerPublisher -- HandlerType
+EventHandlerPublisher "1" o-- "0..n" EventHandler
+
+
+'========================
+' ENUMERATIONS
+'========================
+
+enum HandlerType {
+
+    Playerru
+    Enemy
+    World
+    Item
+
+}
+
+
+'========================
+' TIPOS DE JUEGO (EJEMPLO)
+'========================
+
+
+IObject <|-- IActionInput
+
+InputBasedManager <|-- ActionInputManager
+RandomInputManager <|-- ActionInputManager
+
+ActionInputManager *-- IActionInput
+
+TextChunk -- TextManager
+
+@enduml
