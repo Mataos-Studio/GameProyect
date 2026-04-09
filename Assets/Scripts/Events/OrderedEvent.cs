@@ -5,6 +5,7 @@ public class OrderedEvent<T> where T : IGameEvent
 {
     public PriorityType Priority { get; }
     public int TriggerTimes { get; set; }
+    public int TriggerCounter { get; private set; }
     Action<T> Callback { get; }
 
     public OrderedEvent(PriorityType priority, int triggerTimes, Action<T> callback)
@@ -12,7 +13,12 @@ public class OrderedEvent<T> where T : IGameEvent
         Priority = priority;
         TriggerTimes = triggerTimes;
         Callback = callback;
+        TriggerCounter = 0;
     }
 
-    public void Execute(T data) => Callback.Invoke(data);
+    public void Execute(T data)
+    {
+        Callback.Invoke(data);
+        TriggerCounter++;
+    }
 }
