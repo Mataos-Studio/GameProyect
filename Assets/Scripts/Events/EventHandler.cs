@@ -4,7 +4,7 @@ using System.Collections.Generic;
 //TODO: BUSCAR A VER SI HAY LISTA YA ORDENADA POR ENUM DE PRIORIDAD
 public class EventHandler
 {
-    Dictionary<Type, List<OrderedEvent<IGameEvent>>> events;
+    readonly Dictionary<Type, List<BaseOrderedEvent>> events;
     public int OwnerId { get; }
 
     public EventHandler(int ownerId)

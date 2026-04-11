@@ -1,10 +1,9 @@
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 
 public class EventHandlerPublisher
 {
-    Dictionary<HandlerType, List<EventHandler>> handlers;
-    Dictionary<HandlerType, List<OrderedEvent<IGameEvent>>> generalEvents;
+    readonly Dictionary<HandlerType, List<EventHandler>> handlers;
+    readonly Dictionary<HandlerType, List<BaseOrderedEvent>> generalEvents;
 
     public EventHandlerPublisher()
     {
@@ -17,7 +16,7 @@ public class EventHandlerPublisher
     {
         handlers[type].Add(handler);
 
-        foreach(OrderedEvent e in generalEvents[type])
+        foreach(OrderedEvent<IGameEvent> e in generalEvents[type])
         {
             handler.Subscribe(e);
         }
@@ -60,11 +59,11 @@ public class EventHandlerPublisher
     public void Unsubscribe<T>(HandlerType type, OrderedEvent<T> e) where T : IGameEvent
     {
         generalEvents[type].Remove(e);
-        RemoveEvent(e);
+        RemoveEvent(type, e);
     }
 
     public void UnsubscribeToCurrent<T>(HandlerType type, OrderedEvent<T> e) where T : IGameEvent
     {
-        RemoveEvent(e);
+        RemoveEvent(type, e);
     }
 }
